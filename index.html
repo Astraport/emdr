@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>EMDR Square Therapy App</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .controls-row {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            margin: 12px 0;
+        }
+
+        .mdc-button {
+            background: #2196F3 !important;
+            color: white !important;
+            padding: 12px 24px;
+            border-radius: 24px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: flex !important;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .slider-container {
+            flex-grow: 1;
+        }
+
+        .slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 4px;
+            border-radius: 2px;
+            background: #e0e0e0;
+            outline: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #2196F3;
+            cursor: pointer;
+            margin-top: -8px;
+        }
+
+        #animation-container {
+            width: 100%;
+            height: 300px;
+            position: relative;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        #square {
+    width: 200px;
+    height: 200px;
+    background-color: #1a237e;
+    position: absolute;
+    left: 0;
+    top: 50px;
+    transition: left linear;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    will-change: transform;
+    border-radius: 15px; /* Закругление углов */
+	transition: background-color 3.5s ease-in-out;
+}
+
+@keyframes hueShift {
+    0% { filter: hue-rotate(0deg); }
+    100% { filter: hue-rotate(360deg); }
+}
+
+@keyframes saturationPulse {
+    0%, 100% { filter: saturate(100%); }
+    50% { filter: saturate(140%); }
+}
+
+@keyframes colorChaos {
+    0% { background-color: hsl(240, 70%, 15%); } /* Тёмно-синий */
+    15% { background-color: hsl(220, 65%, 12%); } /* Сине-серый */
+    30% { background-color: hsl(180, 60%, 10%); } /* Тёмный бирюзовый */
+    45% { background-color: hsl(120, 50%, 8%); }  /* Глубокий зелёный */
+    60% { background-color: hsl(40, 55%, 12%); } /* Тёмный охра */
+    75% { background-color: hsl(30, 60%, 10%); } /* Коричневатый */
+    90% { background-color: hsl(270, 40%, 8%); }  /* Тёмный фиолетовый */
+    100% { background-color: hsl(240, 70%, 15%); }
+}
+
+        #affirmation {
+            color: white;
+            font-size: 1.4em;
+            padding: 20px;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.5s;
+            width: 100%;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            line-height: 1.4;
+            backface-visibility: hidden;
+        }
+
+        .visible {
+            opacity: 1 !important;
+        }
+
+        .select-container {
+            position: relative;
+            width: 100%;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 12px;
+            margin: 8px 0;
+        }
+
+        .speed-value {
+            min-width: 40px;
+            text-align: center;
+            font-weight: 500;
+            color: #616161;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="controls-row">
+                <button class="mdc-button" id="startStop">
+                    <span class="material-icons">play_arrow</span>
+                    <span>Start</span>
+                </button>
+                
+                <div class="slider-container">
+                    <label>Speed:</label>
+                    <input type="range" class="slider" id="speed" min="25" max="100" step="10" value="50">
+                    <span class="speed-value" id="speedValue">50%</span>
+                </div>
+
+                <label class="controls-row" style="gap: 8px;">
+                    <input type="checkbox" id="sound" checked>
+                    <span class="material-icons">volume_up</span>
+                </label>
+            </div>
+
+            <div class="select-container">
+                <select id="category" style="width: 100%; border: none; outline: none;">
+                    <option value="phobias">Фобии</option>
+                    <option value="smoking">Зависимость от курения</option>
+                    <option value="weight">Похудение</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="card">
+            <div id="animation-container">
+                <div id="square">
+                    <div id="affirmation"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+<script>
+const square = document.getElementById('square');
+const darkColors = [
+    // Исходные цвета
+    '#1a237e', // индиго
+    '#2e7d32', // лесной зелёный
+    '#4e342e', // сепия
+    '#311b92', // глубокий фиолетовый
+    '#006064', // тёмный циан
+    '#3e2723', // умбра
+    
+    // Новые добавленные цвета
+    '#0d1b2a', // ночной синий
+    '#1b5e20', // охотничий зелёный
+    '#5d4037', // тёмная терракота
+    '#4a148c', // королевский пурпур
+    '#880e4f', // бордовый
+    '#263238', // графитовый
+    '#004d40', // тёмный изумруд
+    '#4527a0', // византийский синий
+    '#8d6e63', // античная бронза
+    '#33691e'  // оливковая ночь
+];
+
+function randomDarkColor() {
+    return darkColors[Math.floor(Math.random() * darkColors.length)];
+}
+
+setInterval(() => {
+    square.style.backgroundColor = randomDarkColor();
+}, 2000);
+</script>
+    <script>
+        const affirmations = {
+    "phobias": [
+        "Я в безопасности здесь и сейчас",
+        "Мои страхи не определяют меня",
+        "Я спокоен и расслаблен",
+        "Я контролирую свои эмоции",
+        "С каждым днём я становлюсь смелее",
+        "Я доверяю своей способности преодолевать трудности",
+        "Моя тревога растворяется с каждым выдохом",
+        "Я сильнее, чем любой мой страх",
+        "Я выбираю покой вместо паники",
+        "Мои страхи растворяются в свете моего спокойствия",
+        "Я заслуживаю чувствовать себя защищённым"
+    ],
+    "smoking": [
+        "Моё тело свободно от никотина",
+        "Я выбираю здоровье и жизнь",
+        "Мне легко отказаться от сигарет",
+        "Я дышу полной грудью",
+        "Моя воля сильнее привычки",
+        "Каждый день без сигарет наполняет меня гордостью",
+        "Я наслаждаюсь вкусом свежего воздуха",
+        "Мои лёгкие становятся сильнее с каждым вдохом",
+        "Я освобождаюсь от зависимости легко и радостно",
+        "Моя энергия растёт с каждым часом без никотина",
+        "Курение — это прошлое, которым я больше не управляю"
+    ],
+    "weight": [
+        "Моё тело становится стройным",
+        "Я выбираю здоровую пищу",
+        "Я люблю физическую активность",
+        "Мой метаболизм работает идеально",
+        "Я контролирую свой аппетит",
+        "Каждая моя клетка стремится к здоровому весу",
+        "Я наслаждаюсь лёгкостью в теле и мыслях",
+        "Мои решения ведут меня к идеальной форме",
+        "Я благодарен своему телу за его силу и выносливость",
+        "Я ем осознанно и с удовольствием",
+        "Мои привычки ведут меня к здоровому и стройному телу"
+    ]
+};
+
+        let isAnimating = false;
+        let isPaused = false;
+        let direction = 1;
+        let animationFrame;
+        let currentAffirmations = [];
+        let affirmationIndex = 0;
+        let pauseTimeout;
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playBeep() {
+            if(!document.getElementById('sound').checked) return;
+            
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+            
+            gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.start();
+            oscillator.stop(audioContext.currentTime + 0.1);
+        }
+
+        function updateAffirmation() {
+            const element = document.getElementById('affirmation');
+            element.classList.remove('visible');
+            
+            setTimeout(() => {
+                element.textContent = currentAffirmations[affirmationIndex];
+                element.classList.add('visible');
+                affirmationIndex = (affirmationIndex + 1) % currentAffirmations.length;
+                
+                if(affirmationIndex === 0) {
+                    currentAffirmations = [...currentAffirmations].sort(() => Math.random() - 0.5);
+                }
+            }, 500);
+        }
+
+        function animate() {
+            if(!isAnimating || isPaused) return;
+            
+            const container = document.getElementById('animation-container');
+            const square = document.getElementById('square');
+            const speed = document.getElementById('speed').value;
+            const maxLeft = container.offsetWidth - square.offsetWidth;
+            
+            let currentLeft = parseInt(square.style.left) || 0;
+            let newLeft = currentLeft + direction * (speed * 0.3);
+            
+            if(newLeft >= maxLeft || newLeft <= 0) {
+                isPaused = true;
+                direction *= -1;
+                playBeep();
+                updateAffirmation();
+                
+                pauseTimeout = setTimeout(() => {
+                    isPaused = false;
+                    animate();
+                }, 2000);
+                
+                return;
+            }
+            
+            square.style.left = newLeft + 'px';
+            animationFrame = requestAnimationFrame(animate);
+        }
+
+        function startAnimation() {
+            if(isAnimating) return;
+            
+            isAnimating = true;
+            isPaused = false;
+            document.getElementById('startStop').innerHTML = '<span class="material-icons">pause</span><span>Stop</span>';
+            animate();
+        }
+
+        function stopAnimation() {
+            isAnimating = false;
+            isPaused = false;
+            clearTimeout(pauseTimeout);
+            document.getElementById('startStop').innerHTML = '<span class="material-icons">play_arrow</span><span>Start</span>';
+            cancelAnimationFrame(animationFrame);
+        }
+
+        document.getElementById('startStop').addEventListener('click', () => {
+            isAnimating ? stopAnimation() : startAnimation();
+        });
+
+        document.getElementById('speed').addEventListener('input', function() {
+            document.getElementById('speedValue').textContent = `${this.value}%`;
+        });
+
+        document.getElementById('category').addEventListener('change', function() {
+            currentAffirmations = [...affirmations[this.value]].sort(() => Math.random() - 0.5);
+            affirmationIndex = 0;
+        });
+
+        document.getElementById('category').dispatchEvent(new Event('change'));
+    </script>
+</body>
+</html>
